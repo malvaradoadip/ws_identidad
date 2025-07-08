@@ -4,10 +4,17 @@ import psycopg2
 from typing import List
 from dotenv import load_dotenv
 import os
-
-load_dotenv()  # Carga las variables del archivo .env
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite cualquier origen
+    allow_methods=["*"],  # Permite cualquier método HTTP (GET, POST, etc.)
+    allow_headers=["*"],  # Permite cualquier encabezado en las solicitudes
+)
+load_dotenv()  # Carga las variables del archivo .env
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST"),
