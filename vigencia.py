@@ -35,6 +35,6 @@ def obtener_vigencias(curp):
 
 # Ejemplo de uso:
 if __name__ == "__main__":
-    curp = "TU_CURP_AQUI"
+    curp = "GOMJ710104HJCMRN00"
     resultado = obtener_vigencias(curp)
     print(resultado)

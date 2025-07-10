@@ -5,6 +5,7 @@ from typing import List
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
+from vigencia import obtener_vigencias  # Importa la función
 
 app = FastAPI()
 
@@ -39,19 +40,21 @@ def fetch_list(query: str, params: tuple) -> List[str]:
 
 @app.get("/consulta/{curp}", response_model=ConsultaResponse)
 def consulta_curp(curp: str):
-    # DERECHOHABIENCIA
+    # DERECHOHABIENCIA usando vigencia.py para IMSS e ISSSTE
+    derechohabiencia_vigencia = consulta_vigencia(curp)  # Esto retorna ["IMSS", "ISSSTE"] según corresponda
+
+    # PEMEX e IMSS-BIENESTAR siguen con consulta SQL
     query_derecho = """
         SELECT institucion FROM (
-            SELECT 'IMSS' AS institucion FROM imss.padron WHERE curp = %s
-            UNION
-            SELECT 'ISSSTE' FROM issste.padron_issste WHERE curp = %s
-            UNION
-            SELECT 'PEMEX' FROM pemex.padron_pemex WHERE curp = %s
+            SELECT 'PEMEX' AS institucion FROM pemex.padron_pemex WHERE curp = %s
             UNION
             SELECT 'IMSS-BIENESTAR' FROM imss_bienestar.padron WHERE curp = %s
         ) t
     """
-    derechohabiencia = fetch_list(query_derecho, (curp, curp, curp, curp))
+    derechohabiencia_sql = fetch_list(query_derecho, (curp, curp))
+
+    # Unir resultados
+    derechohabiencia = derechohabiencia_vigencia + derechohabiencia_sql
 
     # FOTO
     query_foto = """
@@ -71,7 +74,6 @@ def consulta_curp(curp: str):
             SELECT 'SRE' AS institucion FROM sre.resultados WHERE curp = %s
             UNION
             SELECT 'SAT' AS institucion FROM sat.sat_fotos WHERE curp = %s AND b_foto = true
-            -- Agrega más tablas aquí si aplica
         ) t
     """
     huella = fetch_list(query_huella, (curp, curp))
