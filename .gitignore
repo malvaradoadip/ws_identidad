@@ -1,3 +1,4 @@
 _pycache_
 env_identidad/
 .env
+main.rsgi

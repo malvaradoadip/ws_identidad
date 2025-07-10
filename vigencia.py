@@ -1,9 +1,14 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-def obtener_vigencia(curp):
+# Cargar el token ISSSTE del archivo .env
+load_dotenv()
+
+def obtener_vigencias(curp):
     vigencias = []
 
-    # Consulta IMSS
+    # 1. Consulta IMSS (sin autenticación)
     url_imss = f"https://verificaimss.imss.gob.mx/VigenciaIMSSREST/Consulta/{curp}"
     try:
         resp_imss = requests.get(url_imss, timeout=10)
@@ -12,19 +17,24 @@ def obtener_vigencia(curp):
     except Exception as e:
         print(f"Error al consultar IMSS: {e}")
 
-    # Consulta ISSSTE
-    url_issste = f"https://consultaissste.issste.gob.mx/VigenciaISSSTERest/Consulta/{curp}"
-    try:
-        resp_issste = requests.get(url_issste, timeout=10)
-        if resp_issste.status_code == 200 and "<codigo>4</codigo>" in resp_issste.text:
-            vigencias.append("ISSSTE")
-    except Exception as e:
-        print(f"Error al consultar ISSSTE: {e}")
+    # 2. Consulta ISSSTE (con autenticación Bearer)
+    token = os.getenv("ISSSTE_TOKEN")
+    if not token:
+        print("Advertencia: No se encontró el token ISSSTE en el archivo .env. Omite consulta ISSSTE.")
+    else:
+        url_issste = f"https://api-dev.issste.gob.mx/api/sipe/consulta/{curp}"
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            resp_issste = requests.get(url_issste, headers=headers, timeout=10)
+            if resp_issste.status_code == 200 and "tipo_derechohabiencia" in resp_issste.text:
+                vigencias.append("ISSSTE")
+        except Exception as e:
+            print(f"Error al consultar ISSSTE: {e}")
 
     return vigencias
 
-# Ejemplo de uso
+# Ejemplo de uso:
 if __name__ == "__main__":
-    curp = "GOCF850710MOCNRL03"
-    resultado = obtener_vigencia(curp)
+    curp = "TU_CURP_AQUI"
+    resultado = obtener_vigencias(curp)
     print(resultado)
