@@ -9,12 +9,12 @@ from vigencia import obtener_vigencias  # Importa la función
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Permite cualquier origen
-    allow_methods=["*"],  # Permite cualquier método HTTP (GET, POST, etc.)
-    allow_headers=["*"],  # Permite cualquier encabezado en las solicitudes
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # Permite cualquier origen
+#     allow_methods=["*"],  # Permite cualquier método HTTP (GET, POST, etc.)
+#     allow_headers=["*"],  # Permite cualquier encabezado en las solicitudes
+# )
 load_dotenv()  # Carga las variables del archivo .env
 
 DB_CONFIG = {
@@ -41,7 +41,7 @@ def fetch_list(query: str, params: tuple) -> List[str]:
 @app.get("/consulta/{curp}", response_model=ConsultaResponse)
 def consulta_curp(curp: str):
     # DERECHOHABIENCIA usando vigencia.py para IMSS e ISSSTE
-    derechohabiencia_vigencia = consulta_vigencia(curp)  # Esto retorna ["IMSS", "ISSSTE"] según corresponda
+    derechohabiencia_vigencia = obtener_vigencias(curp)  # Esto retorna ["IMSS", "ISSSTE"] según corresponda
 
     # PEMEX e IMSS-BIENESTAR siguen con consulta SQL
     query_derecho = """
