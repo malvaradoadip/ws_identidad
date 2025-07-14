@@ -2,3 +2,6 @@ __pycache__/
 env_identidad/
 .env
 *.pyc
+ws_identidad_home.mod
+ws_identidad_home.pp
+ws_identidad_home.te

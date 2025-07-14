@@ -1,6 +1,6 @@
 import requests
 
-API_URL = "http://localhost:8087/consulta/"
+API_URL = "http://localhost:8090/consulta/"
 
 curps = [
 "AAAA830719HHGLNL00",
